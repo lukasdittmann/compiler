@@ -8,7 +8,7 @@ data MDToken = T_Newline     -- '\n'
              | T_Plus     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
              | T_Escape     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
              | T_ULI Int
-             | T_Asterisk Int     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
+             | T_Asterisk
              | T_Space Int     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
     deriving (Show, Eq)
 
@@ -24,11 +24,7 @@ scan str@('#':xs) =
         level = min (length hashes) 6
     in maybe Nothing (\tokens -> Just (T_H level:tokens))      $ scan rest
 -- eine Überschrift
-scan str@('*':xs) =
-    -- String aufteilen in Sternchen und Rest
-    let (stars, rest) = span (=='*') str
-        level = (length stars)
-    in maybe Nothing (\tokens -> Just (T_Asterisk level:tokens))      $ scan rest
+scan ('*':xs)     = maybe Nothing (\tokens -> Just (T_Asterisk:tokens))    $ scan xs
 scan str@(' ':xs) =
     -- String aufteilen in Sternchen und Rest
     let (stars, rest) = span (==' ') str

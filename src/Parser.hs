@@ -8,6 +8,7 @@ import           Scanner
 parse :: [MDToken] -> Maybe AST
 -- Die leere Liste ergibt eine leere Sequenz
 parse []                       = Just $ Sequence []
+parse (T_Escape:T_Asterisk:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (EmptyLine : ast)) $ parse xs
 -- Zwei Zeilenumbrüche hintereinander sind eine leere Zeile, die in eine Sequenz eingeführt wird (wirklich immer?)
 parse (T_Newline:T_Newline:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (EmptyLine : ast)) $ parse xs
 -- ein einzelnes Leerzeichen ignorieren wir (für den Moment?)
