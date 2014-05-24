@@ -15,8 +15,6 @@ parse []                       = Just $ Sequence []
 parse (T_Seperator: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Newline]) xs
     in maybe Nothing (\(Sequence ast) -> Just $ Sequence (Li (parseInAbs elemente):ast)) $ parse allesDanach
 
---parse (T_Escape:T_Asterisk:xs) = maybe Nothing (\ast -> Just $ addP (P "*") ast) $ parse xs
-
 parse (T_Space 1:T_Text str:xs) = maybe Nothing (\ast -> Just $ addP (P str) (addP (P " ") ast)) $ parse xs
 
 -- Zwei Zeilenumbrüche hintereinander sind eine leere Zeile, die in eine Sequenz eingeführt wird (wirklich immer?)
@@ -25,45 +23,23 @@ parse (T_Newline:T_Newline:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 -- eine einzelne Leerzeile ignorieren wir (für den Moment?)
 parse (T_Newline:xs) = parse xs
 
---parse (T_Asterisk: T_Text str: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
-
 -- einem Header muss ein Text folgen. Das ergibt zusammen einen Header im AST, er wird einer Sequenz hinzugefügt
 parse (T_H i : T_Space 1:T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
 parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
-
--- einem listitem-Marker muss auch ein Text folgen. Das gibt zusammen ein Listitem im AST.
--- es wird mit der Hilfsfunktion addLI eingefügt
---parse (T_Seperator: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
---parse (T_Seperator: T_Space i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
-
-
---parse (T_ULI i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
-
--- ein Text am Anfang gehört in einen Absatz. Damit direkt auf einander folgende Texte in einem gemeinsamen
--- Absatz landen, wird die Hilfsfunktion addP genutzt um den Text einzufügen
---parse (T_Text str: xs)         = maybe Nothing (\ast -> Just $ addP (P str) ast) $ parse xs
 
 -- Der gesamte Rest wird für den Moment ignoriert. Achtung: Der Parser schlägt, in der momentanen Implementierung, nie fehl.
 -- Das kann in der Endfassung natürlich nicht so bleiben!
 parse _ = Just $ Sequence []
 
---------------------------------------------------------------------------------------------------------
---parseInAbs (T_Asterisk: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Asterisk]) xs
---    in (\(Sequence ast) -> Just $ Sequence (Kur (parseInAbs elemente):ast)) $ parseInAbs allesDanach
---------------------------------------------------------------------------------------------------------
-parseInAbs el@_ = [Bold (show el)]
+parseInAbs (T_Asterisk: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Asterisk]) xs
+    in (\(Sequence ast) -> Just $ Sequence (Kur (parseInAbs elemente):ast)) $ parseInAbs allesDanach
+    
+parseInAbs el@_ = --[Bold (show el)]
+    in maybe Nothing (\(Sequence ast) -> Just $ Sequence (Li (parseInAbs elemente):ast)) $ parse allesDanach
 
---in maybe Nothing (\(Sequence ast) -> Just $ Sequence (Li (parseInAbs elemente):ast)) $ parse allesDanach
 
--- Hilfsfunktionen für den Parser
-
--- Einfügen eines Listenelements in eine ungeordnete Liste
---addULI :: AST -> AST -> AST
--- Wenn wir ein Listenelement einfügen wollen und im Rest schon eine UL haben, fügen wir das Element in die UL ein
---addULI li (Sequence (UL lis : ast)) = Sequence (UL (li:lis) : ast)
--- Andernfalls erzeugen wir eine neue UL.
---addULI li (Sequence ast) = Sequence (UL [li] : ast)
-
+------------------------------------
+{- Hilfsfunktionen für den Parser -}
 
 -- Mehrere aufeinander folgende Texte werden zu einem Absatz zusammengefügt.
 addP :: AST -> AST -> AST
