@@ -6,9 +6,13 @@ import           Scanner
 
 -- Der Parser versucht aus einer Liste von MDToken einen AST zu erzeugen 
 parse :: [MDToken] -> Maybe AST
+parseInAbs :: [MDToken] -> [AST]
 
 -- Die leere Liste ergibt eine leere Sequenz
 parse []                       = Just $ Sequence []
+
+parse (T_Seperator: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Newline]) xs
+    in maybe Nothing (\(Sequence ast) -> Just $ Sequence (B (parseInAbs elemente):ast)) $ parse allesDanach
 
 parse (T_Escape:T_Asterisk:xs) = maybe Nothing (\ast -> Just $ addP (P "*") ast) $ parse xs
 
@@ -20,7 +24,7 @@ parse (T_Newline:T_Newline:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 -- eine einzelne Leerzeile ignorieren wir (für den Moment?)
 --parse (T_Newline:xs)           = parse xs
 
-parse (T_Asterisk: T_Text str: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
+--parse (T_Asterisk: T_Text str: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
 
 -- einem Header muss ein Text folgen. Das ergibt zusammen einen Header im AST, er wird einer Sequenz hinzugefügt
 parse (T_H i : T_Space 1:T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
@@ -28,8 +32,8 @@ parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 
 -- einem listitem-Marker muss auch ein Text folgen. Das gibt zusammen ein Listitem im AST.
 -- es wird mit der Hilfsfunktion addLI eingefügt
-parse (T_Seperator: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
-parse (T_Seperator: T_Space i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
+--parse (T_Seperator: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
+--parse (T_Seperator: T_Space i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
 
 
 parse (T_ULI i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
@@ -41,6 +45,8 @@ parse (T_Text str: xs)         = maybe Nothing (\ast -> Just $ addP (P str) ast)
 -- Der gesamte Rest wird für den Moment ignoriert. Achtung: Der Parser schlägt, in der momentanen Implementierung, nie fehl.
 -- Das kann in der Endfassung natürlich nicht so bleiben!
 parse _ = Just $ Sequence []
+
+parseInAbs _ = []
 
 -- Hilfsfunktionen für den Parser
 

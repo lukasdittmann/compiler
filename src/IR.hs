@@ -8,5 +8,5 @@ data AST = Sequence [AST] -- eine Sequenz von HTML-Elementen
          | P String       -- ein Absatz mit dem Inhalt
          | EmptyLine      -- eine leere Zeile
          | Bold String     -- ein fettgedruckter Text
-         | B String
+         | B [AST]
     deriving (Show)
