@@ -6,21 +6,28 @@ import           Scanner
 
 -- Der Parser versucht aus einer Liste von MDToken einen AST zu erzeugen 
 parse :: [MDToken] -> Maybe AST
+
 -- Die leere Liste ergibt eine leere Sequenz
 parse []                       = Just $ Sequence []
+
 parse (T_Escape:T_Asterisk:xs) = maybe Nothing (\ast -> Just $ addP (P "*") ast) $ parse xs
---parse (T_Asterisk:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (Bold : ast)) $ parse xs
+
 parse (T_Space 1:T_Text str:xs) = maybe Nothing (\ast -> Just $ addP (P str) (addP (P " ") ast)) $ parse xs
--- parse (T_Text str:T_H count:xs) = maybe Nothing (\ast -> Just $ addP (P "#") ast) $ parse xs
+
 -- Zwei Zeilenumbrüche hintereinander sind eine leere Zeile, die in eine Sequenz eingeführt wird (wirklich immer?)
 parse (T_Newline:T_Newline:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (EmptyLine : ast)) $ parse xs
+
 -- ein einzelnes Leerzeichen ignorieren wir (für den Moment?)
-parse (T_Newline:xs)           = parse xs
+--parse (T_Newline:xs)           = parse xs
+
 parse (T_Asterisk: T_Space 1: T_Text str: T_Space 1: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
+
 parse (T_Asterisk: T_Text str: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
+
 -- einem Header muss ein Text folgen. Das ergibt zusammen einen Header im AST, er wird einer Sequenz hinzugefügt
 parse (T_H i : T_Space 1:T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
 parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
+
 -- einem listitem-Marker muss auch ein Text folgen. Das gibt zusammen ein Listitem im AST.
 -- es wird mit der Hilfsfunktion addLI eingefügt
 parse (T_Seperator: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
