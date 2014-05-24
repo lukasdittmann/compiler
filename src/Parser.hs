@@ -17,7 +17,7 @@ parse (T_Space 1:T_Text str:xs) = maybe Nothing (\ast -> Just $ addP (P str) (ad
 -- Zwei Zeilenumbrüche hintereinander sind eine leere Zeile, die in eine Sequenz eingeführt wird (wirklich immer?)
 parse (T_Newline:T_Newline:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (EmptyLine : ast)) $ parse xs
 
--- ein einzelnes Leerzeichen ignorieren wir (für den Moment?)
+-- eine einzelne Leerzeile ignorieren wir (für den Moment?)
 --parse (T_Newline:xs)           = parse xs
 
 parse (T_Asterisk: T_Space 1: T_Text str: T_Space 1: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
