@@ -46,7 +46,7 @@ parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 -- Das kann in der Endfassung natürlich nicht so bleiben!
 parse _ = Just $ Sequence []
 
-parseInAbs _ = []
+parseInAbs el@_ = [Bold (show el)]
 
 -- Hilfsfunktionen für den Parser
 
