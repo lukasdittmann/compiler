@@ -32,7 +32,6 @@ parse (T_Seperator: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI s
 parse (T_Seperator: T_Space i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
 
 
-
 parse (T_ULI i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
 
 -- ein Text am Anfang gehört in einen Absatz. Damit direkt auf einander folgende Texte in einem gemeinsamen
