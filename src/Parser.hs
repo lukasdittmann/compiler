@@ -1,4 +1,4 @@
-module Parser ( parse {- nur parse exportieren -} )
+module Parser ( parse ) -- nur parse exportieren
     where
 
 import           IR
@@ -6,15 +6,17 @@ import           Scanner
 
 -- Der Parser versucht aus einer Liste von MDToken einen AST zu erzeugen 
 parse :: [MDToken] -> Maybe AST
+-- Gesondertes Parsen des Texts innerhalb eines LI-Elements
 parseInAbs :: [MDToken] -> [AST]
 
 -- Die leere Liste ergibt eine leere Sequenz
-parse []                       = Just $ Sequence []
+parse [] = Just $ Sequence []
 
--- Listenelemente
+-- LI-Element erkennen und Inhalt gesondert parsen, um bspw. kursiven Text erkennen zu koennen
 parse (T_Seperator: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Newline]) xs
     in maybe Nothing (\(Sequence ast) -> Just $ Sequence (Li (parseInAbs elemente):ast)) $ parse allesDanach
 
+-- Leerzeichen, gefolgt von Text, wird in Absatz eingefuegt
 parse (T_Space 1:T_Text str:xs) = maybe Nothing (\ast -> Just $ addP (P str) (addP (P " ") ast)) $ parse xs
 
 -- Zwei Zeilenumbrüche hintereinander sind eine leere Zeile, die in eine Sequenz eingeführt wird (wirklich immer?)
@@ -25,6 +27,8 @@ parse (T_Newline:xs) = parse xs
 
 -- einem Header muss ein Text folgen. Das ergibt zusammen einen Header im AST, er wird einer Sequenz hinzugefügt
 parse (T_H i : T_Space 1:T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
+
+-- Ueberschrift mit zugehoerigem Level erkennen
 parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parse xs
 
 -- Der gesamte Rest wird für den Moment ignoriert. Achtung: Der Parser schlägt, in der momentanen Implementierung, nie fehl.
