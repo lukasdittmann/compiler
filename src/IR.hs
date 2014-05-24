@@ -4,7 +4,8 @@ module IR where
 data AST = Sequence [AST] -- eine Sequenz von HTML-Elementen
          | H Int String   -- eine Überschrift, de Int ist das Level (6 für H6) und der String der Text
          | UL [AST]       -- eine ungeordnete Liste, in der Liste müssen dann die Listenelemente stehen
-         | LI String      -- ein Listenelement mit dem Inhalt
+         | Li [AST]      -- ein Listenelement mit dem Inhalt
+         | Kur [AST]
          | P String       -- ein Absatz mit dem Inhalt
          | EmptyLine      -- eine leere Zeile
          | Bold String     -- ein fettgedruckter Text
