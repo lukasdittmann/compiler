@@ -4,12 +4,12 @@ module Scanner where
 data MDToken = T_Newline     -- '\n' 
              | T_H Int       -- ein Header mit der Anzahl der Hashes
              | T_Text String -- Text, aber immer nur bis zum Zeilenende, Text über mehrere Zeilen muss vom Parser zusammengesetzt werden
-             | T_Seperator     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
-             | T_Plus     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
-             | T_Escape     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
-             | T_ULI Int
+             | T_Seperator
+             | T_Plus
+             | T_Escape
+             | T_ULI Int     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
              | T_Asterisk
-             | T_Space Int     -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
+             | T_Space Int
     deriving (Show, Eq)
 
 scan :: String -> Maybe [MDToken]
