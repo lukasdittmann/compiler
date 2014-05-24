@@ -20,8 +20,6 @@ parse (T_Newline:T_Newline:xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 -- eine einzelne Leerzeile ignorieren wir (für den Moment?)
 --parse (T_Newline:xs)           = parse xs
 
-parse (T_Asterisk: T_Space 1: T_Text str: T_Space 1: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
-
 parse (T_Asterisk: T_Text str: T_Asterisk : xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (B str:ast)) $ parse xs
 
 -- einem Header muss ein Text folgen. Das ergibt zusammen einen Header im AST, er wird einer Sequenz hinzugefügt
