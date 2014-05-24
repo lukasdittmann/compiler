@@ -12,9 +12,9 @@ parseInAbs :: [MDToken] -> [AST]
 parse []                       = Just $ Sequence []
 
 parse (T_Seperator: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Newline]) xs
-    in maybe Nothing (\(Sequence ast) -> Just $ Sequence (B (parseInAbs elemente):ast)) $ parse allesDanach
+    in maybe Nothing (\(Sequence ast) -> Just $ Sequence (UL (parseInAbs elemente):ast)) $ parse allesDanach
 
-parse (T_Escape:T_Asterisk:xs) = maybe Nothing (\ast -> Just $ addP (P "*") ast) $ parse xs
+--parse (T_Escape:T_Asterisk:xs) = maybe Nothing (\ast -> Just $ addP (P "*") ast) $ parse xs
 
 parse (T_Space 1:T_Text str:xs) = maybe Nothing (\ast -> Just $ addP (P str) (addP (P " ") ast)) $ parse xs
 
@@ -36,11 +36,11 @@ parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 --parse (T_Seperator: T_Space i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
 
 
-parse (T_ULI i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
+--parse (T_ULI i: T_Text str: xs) = maybe Nothing (\ast -> Just $ addULI (LI str) ast) $ parse xs
 
 -- ein Text am Anfang gehört in einen Absatz. Damit direkt auf einander folgende Texte in einem gemeinsamen
 -- Absatz landen, wird die Hilfsfunktion addP genutzt um den Text einzufügen
-parse (T_Text str: xs)         = maybe Nothing (\ast -> Just $ addP (P str) ast) $ parse xs
+--parse (T_Text str: xs)         = maybe Nothing (\ast -> Just $ addP (P str) ast) $ parse xs
 
 -- Der gesamte Rest wird für den Moment ignoriert. Achtung: Der Parser schlägt, in der momentanen Implementierung, nie fehl.
 -- Das kann in der Endfassung natürlich nicht so bleiben!
