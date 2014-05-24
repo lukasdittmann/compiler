@@ -39,5 +39,5 @@ scan ('+':xs)     = maybe Nothing (\tokens -> Just (T_Plus:tokens))    $ scan xs
 scan ('\\':xs)     = maybe Nothing (\tokens -> Just (T_Escape:tokens))    $ scan xs
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
 scan str          =
-    let (restOfLine, restOfStr) = span (`notElem` ['\n','*','#',' ','\\']) str
+    let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\']) str
     in maybe Nothing (\tokens -> Just (T_Text restOfLine:tokens)) $ scan restOfStr

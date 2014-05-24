@@ -2,7 +2,7 @@
 
 ## in der H2
 
--   erstes Bullet 
+-   erstes *Bullet* 
 -   zweites Bullet
 -   drittes Bullet
 
@@ -13,7 +13,7 @@
 
 ########## und trotz vieler vieler Hashes "nur" H6
 
-Hier *steht* einfach
+Hier *steht* einfach *kein langer*
 nur \*Text\*.
 
 Und
