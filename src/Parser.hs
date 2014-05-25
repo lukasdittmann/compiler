@@ -35,11 +35,13 @@ parse (T_H i : T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequen
 -- Das kann in der Endfassung natürlich nicht so bleiben!
 parse _ = Just $ Sequence []
 
-parseInAbs (T_Asterisk: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Asterisk]) xs
-    in (\(Sequence ast) -> Just $ Sequence (Kur (parseInAbs elemente):ast)) $ parseInAbs allesDanach
-    
-parseInAbs el@_ = --[Bold (show el)]
-    in maybe Nothing (\(Sequence ast) -> Just $ Sequence (Li (parseInAbs elemente):ast)) $ parse allesDanach
+{- Der ganze Rotz funktioniert leider immer noch nicht... :( -}
+--parseInAbs (T_Asterisk: xs) =  let(elemente,allesDanach) = span (`notElem` [T_Asterisk]) xs
+--    in (\(Sequence ast) -> Just $ Sequence (Kur (parseInAbs elemente):ast)) $ parseInAbs allesDanach
+
+--parseInAbs (T_Text str: xs) = maybe Nothing (\(Sequence ast) -> Just $ Sequence (P str: ast)) $ parse xs
+
+parseInAbs list@_ = [Bold (show list)]
 
 
 ------------------------------------
