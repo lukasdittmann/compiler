@@ -5,13 +5,14 @@ data MDToken = T_Newline        -- '\n'
              | T_H Int          -- ein Header mit der Anzahl der Hashes
              | T_Text String    -- Text, aber immer nur bis zum Zeilenende, Text über mehrere Zeilen muss vom Parser zusammengesetzt werden
              | T_Seperator      -- Aufzaehlungselement '-' fuer UL
-             | T_Plus           -- Aufzaehlungszeichen '+' fuer
+             | T_Plus           -- Aufzaehlungszeichen '+' fuer UL
              | T_Escape
              | T_ULI Int        -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
              | T_SLI            -- ein geordnetes Listenelement
              | T_Asterisk       -- '*'
              | T_Space Int      -- ein Leerzeichen mit zugehoeriger Anzahl
              | T_Tab Int        -- 
+             | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz beginnt
 
     deriving (Show, Eq)
 
@@ -31,9 +32,20 @@ scan string@('#':xs) =
         level = min (length hashes) 6
     in maybe Nothing (\tokens -> Just (T_H level:tokens))      $ scan rest
 
+    
 -- String aufteilen in Sternchen und Rest
 scan ('*':xs)     = maybe Nothing (\tokens -> Just (T_Asterisk:tokens))    $ scan xs
 
+
+--zwei aufeinanderfolgende Zeilenumbrüche als Leerzeile erkennen
+scan string@('\n':'\n':xs) = maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs
+
+
+-- Tabs erkennen (vier Spaces sind ein Tab)
+scan string@(' ':' ':' ':' ':xs) = 
+    let (tabs, rest) = span (== ' ') string
+        level = (div (length tabs) 4)
+    in maybe Nothing (\tokens -> Just (T_Tab level: tokens))    $ scan xs
 
 -- Leerzeichen mit Anzahl erkennen
 scan string@(' ':xs) =
