@@ -1,5 +1,8 @@
 module Scanner where
 
+import      Data.Char
+import      Text.Regex
+
 -- MD: Markdown
 data MDToken = T_Newline        -- '\n' 
              | T_H Int          -- ein Header mit der Anzahl der Hashes
@@ -24,6 +27,7 @@ scan :: String -> Maybe [MDToken]
 -- Rekursionsende
 scan "" = Just []
 
+
 -- eine Überschrift erkennen
 scan string@('#':xs) =
         -- String aufteilen in Hashes und Rest
@@ -34,11 +38,17 @@ scan string@('#':xs) =
 
     
 -- String aufteilen in Sternchen und Rest
-scan ('*':xs)     = maybe Nothing (\tokens -> Just (T_Asterisk:tokens))    $ scan xs
+scan ('*':xs) = maybe Nothing (\tokens -> Just (T_Asterisk:tokens))    $ scan xs
 
+
+-- Erkennen von Leerzeilen trotz enthaltener Spaces zwischen zwei Zeilenumbrücken
+-- Funktioniert noch nicht
+{-scan @string('\n':  :'\n':xs) = 
+    let (spaces, rest) = span (isSpace) string
+    in maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs-}
 
 --zwei aufeinanderfolgende Zeilenumbrüche als Leerzeile erkennen
-scan string@('\n':'\n':xs) = maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs
+scan('\n':'\n':xs) =  maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs
 
 
 -- Tabs erkennen (vier Spaces sind ein Tab)

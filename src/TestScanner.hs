@@ -6,9 +6,11 @@ import Test.HUnit
 tests :: Test
 tests = TestList [ TestLabel "SimpleTests" 
                     testSimpleText,
+                    testTextWithSpaces,
                     testSingleTab,
                     testAsterisk,
-                    testEmptyLine
+                    testEmptyLine,
+                    testEmptyLineInclWhitespaces
                 ]
 
 
@@ -31,6 +33,13 @@ testTextWithSpaces =
 testEmptyLine :: Test
 testEmptyLine =
     let expr = "\n\n"
+        expectedValue = Just [ T_EmptyLine ]
+    in TestCase (assertEqual expr expectedValue $ scan expr )
+
+
+testEmptyLineInclWhitespaces :: Test
+testEmptyLineInclWhitespaces =
+    let expr = "\n \n"
         expectedValue = Just [ T_EmptyLine ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
