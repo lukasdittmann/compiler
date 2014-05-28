@@ -8,6 +8,8 @@ tests = TestList [ TestLabel "SimpleTests"
                     testSimpleText,
                     testTextWithSpaces,
                     testSingleTab,
+                    testMultipleTab,
+                    testTabWithSpaces,
                     testAsterisk,
                     testEmptyLine,
                     testEmptyLineInclWhitespaces
@@ -51,6 +53,22 @@ testSingleTab =
         expectedValue = Just [ T_Tab 1 ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
+-- Erkennung mehrere Tabulatorzeichen
+testMultipleTab :: Test
+testMultipleTab =
+    let expr = "          "
+        expectedValue = Just [ T_Tab 2, T_Space 2]
+    in TestCase (assertEqual expr expectedValue $ scan expr )
+
+    
+-- Erkennung Tabulatorzeichen mit Spaces
+testTabWithSpaces :: Test
+testTabWithSpaces =
+    let expr = "      "
+        expectedValue = Just [ T_Tab 1, T_Space 2]
+    in TestCase (assertEqual expr expectedValue $ scan expr )
+
+    
 -- Erkennung eines Sternzeichen und Umwandlung in Token
 testAsterisk :: Test
 testAsterisk =

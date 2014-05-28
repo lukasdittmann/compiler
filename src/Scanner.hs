@@ -20,7 +20,7 @@ data MDToken = T_Newline        -- '\n'
     deriving (Show, Eq)
 
 
--- Scanfunktion    
+-- Scanfunktion
 scan :: String -> Maybe [MDToken]
 
 
@@ -41,21 +41,26 @@ scan string@('#':xs) =
 scan ('*':xs) = maybe Nothing (\tokens -> Just (T_Asterisk:tokens))    $ scan xs
 
 
--- Erkennen von Leerzeilen trotz enthaltener Spaces zwischen zwei Zeilenumbrücken
--- Funktioniert noch nicht
-{-scan @string('\n':  :'\n':xs) = 
-    let (spaces, rest) = span (isSpace) string
-    in maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs-}
-
 --zwei aufeinanderfolgende Zeilenumbrüche als Leerzeile erkennen
 scan('\n':'\n':xs) =  maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs
+
+-- Zeilenumbrüche aufheben, um im Parser Leerzeilen zu erkennen
+scan string@('\n':xs) = 
+    let (spaces, rest) = span (==' ') string
+        in case rest of
+            '\n':xd -> maybe Nothing (\tokens -> Just (T_EmptyLine:tokens)) $ scan xd
+            _ -> maybe Nothing (\tokens -> Just (T_Newline:tokens)) $ scan xs
 
 
 -- Tabs erkennen (vier Spaces sind ein Tab)
 scan string@(' ':' ':' ':' ':xs) = 
     let (tabs, rest) = span (== ' ') string
-        level = (div (length tabs) 4)
-    in maybe Nothing (\tokens -> Just (T_Tab level: tokens))    $ scan xs
+        levelTabs = (div (length tabs) 4)
+        levelSpaces = (length tabs - levelTabs * 4)
+        in case levelSpaces of
+            0 -> maybe Nothing (\tokens -> Just (T_Tab levelTabs:tokens))    $ scan rest
+            _ -> maybe Nothing (\tokens -> Just (T_Tab levelTabs:T_Space levelSpaces:tokens))    $ scan rest
+
 
 -- Leerzeichen mit Anzahl erkennen
 scan string@(' ':xs) =
@@ -64,8 +69,7 @@ scan string@(' ':xs) =
     in maybe Nothing (\tokens -> Just (T_Space level:tokens))      $ scan rest
 
     
--- Zeilenumbrüche aufheben, um im Parser Leerzeilen zu erkennen
-scan ('\n':xs) = maybe Nothing (\tokens -> Just (T_Newline:tokens)) $ scan xs
+
 
 
 -- Erkennen der diversen Aufzaehlungszeichen fuer ungeordnete Listen
