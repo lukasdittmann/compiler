@@ -44,7 +44,7 @@ scan ('*':xs) = maybe Nothing (\tokens -> Just (T_Asterisk:tokens))    $ scan xs
 --zwei aufeinanderfolgende Zeilenumbrüche als Leerzeile erkennen
 scan('\n':'\n':xs) =  maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ scan xs
 
--- Zeilenumbrüche aufheben, um im Parser Leerzeilen zu erkennen
+-- sonstige Zeilenumbrüche analysieren, ob es ein einfacher Zeilenumbruch ist oder eine Emptyline mit überflüssigen Spaces.
 scan string@('\n':xs) = 
     let (spaces, rest) = span (==' ') xs
         -- faengt der String, um Leerzeichen bereinigt, mit einem Zeilenumbruch an, haben wir eine Emptyline
@@ -68,9 +68,6 @@ scan string@(' ':xs) =
     let (spaces, rest) = span (==' ') string
         level = (length spaces)
     in maybe Nothing (\tokens -> Just (T_Space level:tokens))      $ scan rest
-
-    
-
 
 
 -- Erkennen der diversen Aufzaehlungszeichen fuer ungeordnete Listen

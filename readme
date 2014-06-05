@@ -2,3 +2,4 @@ Anmerkungen zum Compiler:
 -------------------------
 
 * überflüssige Whitespaces in einer Leerzeile werden ignoriert.
+* Text kann nur entweder fett gedruckt oder kursiv dargestellt werden
