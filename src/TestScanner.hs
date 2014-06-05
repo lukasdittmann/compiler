@@ -7,12 +7,15 @@ tests :: Test
 tests = TestList [ TestLabel "SimpleTests" 
                     testSimpleText,
                     testTextWithSpaces,
+                    testSimpleNewline,
+                    testEmbeddedNewline,
+                    testEmptyLine,
+                    testEmptyLineInclWhitespaces,
+                    testEmptyLineWithWSandSuccessingWSinNextLine,
                     testSingleTab,
                     testMultipleTab,
                     testTabWithSpaces,
-                    testAsterisk,
-                    testEmptyLine,
-                    testEmptyLineInclWhitespaces
+                    testAsterisk
                 ]
 
 
@@ -31,6 +34,19 @@ testTextWithSpaces =
         expectedValue = Just [ T_Text "bla bla bla" ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
+testSimpleNewline :: Test
+testSimpleNewline =
+    let expr = "\n"
+        expectedValue = Just [T_Newline]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
+
+testEmbeddedNewline :: Test
+testEmbeddedNewline =
+    let expr = "bla\nbla"
+        expectedValue = Just [T_Text "bla", T_Newline, T_Text "bla"]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
 
 testEmptyLine :: Test
 testEmptyLine =
@@ -38,13 +54,19 @@ testEmptyLine =
         expectedValue = Just [ T_EmptyLine ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
-
+-- Whitespaces in einer Leerzeile sollen ignoriert werden
 testEmptyLineInclWhitespaces :: Test
 testEmptyLineInclWhitespaces =
-    let expr = "\n \n"
-        expectedValue = Just [ T_EmptyLine ]
+    let expr = "\n \nbla"
+        expectedValue = Just [ T_EmptyLine, T_Text "bla"]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
+
+testEmptyLineWithWSandSuccessingWSinNextLine :: Test
+testEmptyLineWithWSandSuccessingWSinNextLine =
+    let expr = "\n \n  bla"
+        expectedValue = Just [T_EmptyLine, T_Space 2, T_Text "bla"]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
 
 -- Erkennung einzelnes Tabulatorzeichen und Umwandlung in Token
 testSingleTab :: Test

@@ -1,0 +1,4 @@
+Anmerkungen zum Compiler:
+-------------------------
+
+* überflüssige Whitespaces in einer Leerzeile werden ignoriert.

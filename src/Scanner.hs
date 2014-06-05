@@ -46,7 +46,8 @@ scan('\n':'\n':xs) =  maybe Nothing (\tokens -> Just (T_EmptyLine:tokens))    $ 
 
 -- Zeilenumbrüche aufheben, um im Parser Leerzeilen zu erkennen
 scan string@('\n':xs) = 
-    let (spaces, rest) = span (==' ') string
+    let (spaces, rest) = span (==' ') xs
+        -- faengt der String, um Leerzeichen bereinigt, mit einem Zeilenumbruch an, haben wir eine Emptyline
         in case rest of
             '\n':xd -> maybe Nothing (\tokens -> Just (T_EmptyLine:tokens)) $ scan xd
             _ -> maybe Nothing (\tokens -> Just (T_Newline:tokens)) $ scan xs
