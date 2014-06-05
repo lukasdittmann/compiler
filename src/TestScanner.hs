@@ -15,7 +15,8 @@ tests = TestList [ TestLabel "SimpleTests"
                     testSingleTab,
                     testMultipleTab,
                     testTabWithSpaces,
-                    testAsterisk
+                    testAsterisk,
+                    testHLinkWithRefText
                 ]
 
 
@@ -98,7 +99,13 @@ testAsterisk =
         expectedValue = Just [ T_Asterisk ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
-    
+-- Erkennen eines Hyperlinks mit Referenztext
+testHLinkWithRefText :: Test
+testHLinkWithRefText =
+    let expr = "[Referenztext](http://www.google.de)"
+        expectedValue = Just [ T_RefText "Referenztext", T_HLink "http://www.google.de" ]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
 
 main :: IO ()
 main = do

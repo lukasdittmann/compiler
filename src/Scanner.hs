@@ -15,7 +15,9 @@ data MDToken = T_Newline        -- '\n'
              | T_Asterisk       -- '*'
              | T_Space Int      -- ein Leerzeichen mit zugehoeriger Anzahl
              | T_Tab Int        -- 
-             | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz beginnt
+             | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz 
+             | T_RefText String -- Referenztext für einen Hyperlink
+             | T_HLink String   -- Hyperlink
 
     deriving (Show, Eq)
 
@@ -78,6 +80,12 @@ scan ('+':xs) = maybe Nothing (\tokens -> Just (T_Plus:tokens))    $ scan xs
 scan ('\\':xs) = maybe Nothing (\tokens -> Just (T_Escape:tokens))    $ scan xs
 
 scan (isDigit :'.':xs) = maybe Nothing (\tokens -> Just (T_SLI:tokens))    $ scan xs
+
+
+-- Erkennen von Hyperlinks mit optionalem Referenztext
+{-scan @possHLink('[':xs:')':xd) =
+     let (refText, rest) = span (==']') xs
+     in maybe Nothing (\tokens -> Just (T_HLink refText, (scanLink rest):tokens) $ scan xd-}
 
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
 scan str =
