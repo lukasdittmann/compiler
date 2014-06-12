@@ -16,6 +16,9 @@ tests = TestList [ TestLabel "SimpleTests"
                     testMultipleTab,
                     testTabWithSpaces,
                     testAsterisk,
+                    testRefLink,
+                    testRefTextToken,
+                    testUnbalancedRefText,
                     testHLinkWithRefText
                 ]
 
@@ -98,6 +101,29 @@ testAsterisk =
     let expr = "*"
         expectedValue = Just [ T_Asterisk ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
+
+-- Erkennung eines Referenzlinks, wenn auf einen Referenztext nochmal eckige Klammern kommen
+testRefLink :: Test
+testRefLink =
+    let expr = "[RefText][RefLink]"
+        expectedValue = Just [ T_RefText "RefText", T_RefLink "RefLink" ]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
+    
+-- Erkennen eines Tokens, dass einen Referenztext repräsentiert
+testRefTextToken :: Test
+testRefTextToken =
+    let expr = "[RefText]"
+        expectedValue = Just [ T_RefText "RefText" ]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
+-- Fehlerfall testen, dass RefText-Tag nicht geschlossen wurde
+testUnbalancedRefText :: Test
+testUnbalancedRefText =
+    let expr = "[RefText"
+        expectedValue = Just [ T_Text "[RefText" ]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
 
 -- Erkennen eines Hyperlinks mit Referenztext
 testHLinkWithRefText :: Test

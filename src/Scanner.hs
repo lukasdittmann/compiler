@@ -16,6 +16,7 @@ data MDToken = T_Newline        -- '\n'
              | T_Space Int      -- ein Leerzeichen mit zugehoeriger Anzahl
              | T_Tab Int        -- 
              | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz 
+             | T_RefLink String -- Referenzlink
              | T_RefText String -- Referenztext für einen Hyperlink
              | T_HLink String   -- Hyperlink
 
@@ -81,11 +82,27 @@ scan ('\\':xs) = maybe Nothing (\tokens -> Just (T_Escape:tokens))    $ scan xs
 
 scan (isDigit :'.':xs) = maybe Nothing (\tokens -> Just (T_SLI:tokens))    $ scan xs
 
+-- Folgen eckige Klammern auf einen Referenztext, muss dies als Referenzlink erkannt werden.
+scan string@(']':'[':xs) =
+    let (refLink, xd) = span (/= ']') xs
+        in case xd of
+            ']':rest -> maybe Nothing (\tokens -> Just (T_RefLink refLink:tokens)) $ scan rest
+            -- wenn hier irgendetwas anderes kommt, wird es einfach als Text abgefruehstueckt.
 
--- Erkennen von Hyperlinks mit optionalem Referenztext
-{-scan @possHLink('[':xs:')':xd) =
-     let (refText, rest) = span (==']') xs
-     in maybe Nothing (\tokens -> Just (T_HLink refText, (scanLink rest):tokens) $ scan xd-}
+
+-- Erkennen von Referenztext bei Referenzlinks und Hyperlinks
+scan string@('[':xs) =
+    let (refText, xd) = span (/= ']') xs
+        in case xd of
+            ']':rest -> maybe Nothing (\tokens -> Just (T_RefText refText:tokens)) $ scan rest
+            -- wenn hier irgendetwas anderes kommt, wird es einfach als Text abgefruehstueckt.
+
+-- Erkennen von Hyperlinks
+scan string@('(':xs) =
+    let (hlink, xd) = span (/= ')') xs
+        in case xd of
+            ')':rest -> maybe Nothing (\tokens -> Just (T_HLink hlink:tokens)) $ scan rest
+            -- wenn hier irgendetwas anderes kommt, wird es einfach als Text abgefruehstueckt.
 
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
 scan str =
