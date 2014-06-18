@@ -16,6 +16,7 @@ tests = TestList [ TestLabel "SimpleTests"
                     testMultipleTab,
                     testTabWithSpaces,
                     testAsterisk,
+                    testRefLinkDef,
                     testRefLink,
                     testRefTextToken,
                     testUnbalancedRefText,
@@ -102,6 +103,15 @@ testAsterisk =
         expectedValue = Just [ T_Asterisk ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
 
+
+-- Erkennung der Definition eines Referenzlinks mit [Reftext]: Link
+testRefLinkDef :: Test
+testRefLinkDef =
+    let expr = "[Test]: http://www.test.de"
+        expectedValue = Just [ T_RefLinkDefinition "http://www.test.de"]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
+
+    
 -- Erkennung eines Referenzlinks, wenn auf einen Referenztext nochmal eckige Klammern kommen
 testRefLink :: Test
 testRefLink =
