@@ -115,6 +115,10 @@ scan string@('(':xs) =
             ')':rest -> maybe Nothing (\tokens -> Just (T_HLink hlink:tokens)) $ scan rest
             -- wenn hier irgendetwas anderes kommt, wird es einfach als Text abgefruehstueckt.
 
+
+--Erkennen von eingebundenen Bildern
+scan string@('!':'(':xs)
+            
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
 scan str =
     let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\']) str
