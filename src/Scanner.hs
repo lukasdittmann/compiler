@@ -13,9 +13,11 @@ data MDToken = T_Newline        -- '\n'
              | T_ULI Int        -- ein ungeordnetes Listenelement-Marker mit der (Einrückungs-)Ebene
              | T_SLI            -- ein geordnetes Listenelement
              | T_Asterisk       -- '*'
+             | T_Underscore String  -- '_' fuer Kursivtext mit zugehoerigem String
              | T_Space Int      -- ein Leerzeichen mit zugehoeriger Anzahl
              | T_Tab Int        -- 
-             | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz 
+             | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz
+             | T_RefLinkDefinition String -- Definition eines Referenzlinks mit Angabe des zugehörigen Hyperlinks
              | T_RefLink String -- Referenzlink
              | T_RefText String -- Referenztext für einen Hyperlink
              | T_HLink String   -- Hyperlink
@@ -81,6 +83,15 @@ scan ('+':xs) = maybe Nothing (\tokens -> Just (T_Plus:tokens))    $ scan xs
 scan ('\\':xs) = maybe Nothing (\tokens -> Just (T_Escape:tokens))    $ scan xs
 
 scan (isDigit :'.':xs) = maybe Nothing (\tokens -> Just (T_SLI:tokens))    $ scan xs
+
+
+-- Erkennen von Underscores, die kursiven Text auszeichnen
+scan string@('_':xs) =
+    let (italicText, xd) = span (/= '_') xs
+        in case xd of
+            '_':rest -> maybe Nothing (\tokens -> Just (T_Underscore italicText:tokens)) $ scan rest
+            -- kommt hier irgendetwas anderes, wird das Eingescannte als bloßer Text erkannt.
+
 
 -- Folgen eckige Klammern auf einen Referenztext, muss dies als Referenzlink erkannt werden.
 scan string@(']':'[':xs) =

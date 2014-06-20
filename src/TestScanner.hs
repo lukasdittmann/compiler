@@ -16,7 +16,8 @@ tests = TestList [ TestLabel "SimpleTests"
                     testMultipleTab,
                     testTabWithSpaces,
                     testAsterisk,
-                    testRefLinkDef,
+                    testUnderscore,
+                    --testRefLinkDef,
                     testRefLink,
                     testRefTextToken,
                     testUnbalancedRefText,
@@ -102,6 +103,13 @@ testAsterisk =
     let expr = "*"
         expectedValue = Just [ T_Asterisk ]
     in TestCase (assertEqual expr expectedValue $ scan expr )
+
+-- Erkennen eines Unterstrichs zur Auszeichnung von kursivem Text
+testUnderscore :: Test
+testUnderscore =
+    let expr = "_text_"
+        expectedValue = Just [T_Underscore "text"]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
 
 
 -- Erkennung der Definition eines Referenzlinks mit [Reftext]: Link
