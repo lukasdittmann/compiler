@@ -103,7 +103,7 @@ scan string@(']':'[':xs) =
 
 
 -- Erkennen von Referenztext bei Referenzlinks und Hyperlinks
-scan string@('[':xs) =
+scan ('[':xs) =
     let (refText, xd) = span (/= ']') xs
         in case xd of
             ']':rest -> maybe Nothing (\tokens -> Just (T_RefText refText:tokens)) $ scan rest

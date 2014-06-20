@@ -20,7 +20,6 @@ tests = TestList [ TestLabel "SimpleTests"
                     --testRefLinkDef,
                     testRefLink,
                     testRefTextToken,
-                    testUnbalancedRefText,
                     testHLinkWithRefText,
                     testImage
                 ]
@@ -132,15 +131,8 @@ testRefLink =
 -- Erkennen eines Tokens, dass einen Referenztext repräsentiert
 testRefTextToken :: Test
 testRefTextToken =
-    let expr = "[RefText]"
-        expectedValue = Just [ T_RefText "RefText" ]
-    in TestCase (assertEqual expr expectedValue $ scan expr)
-
--- Fehlerfall testen, dass RefText-Tag nicht geschlossen wurde
-testUnbalancedRefText :: Test
-testUnbalancedRefText =
-    let expr = "[RefText"
-        expectedValue = Just [ T_Text "[RefText" ]
+    let expr = "[RefText] bla"
+        expectedValue = Just [ T_RefText "RefText", T_Space 1, T_Text "bla" ]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
 
