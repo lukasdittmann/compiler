@@ -21,6 +21,7 @@ data MDToken = T_Newline        -- '\n'
              | T_RefLink String -- Referenzlink
              | T_RefText String -- Referenztext für einen Hyperlink
              | T_HLink String   -- Hyperlink
+             | T_Image String   -- eingebundenes Bild mit Bildlink
 
     deriving (Show, Eq)
 
@@ -117,7 +118,11 @@ scan string@('(':xs) =
 
 
 --Erkennen von eingebundenen Bildern
-scan string@('!':'(':xs)
+scan string@('!':'(':xs) =
+    let (imagelink, rest) = span (/= ')') xs
+        in case rest of
+            ')':rest -> maybe Nothing (\tokens -> Just (T_Image imagelink:tokens)) $ scan rest
+
             
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
 scan str =

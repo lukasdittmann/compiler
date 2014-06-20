@@ -157,7 +157,7 @@ testImage :: Test
 testImage =
     let expr = "!(http://www.bla.de/img.png)"
         expectedValue = Just [T_Image "http://www.bla.de/img.png"]
-    in Textcase (assertEqual expr expectedValue $ scan expr)
+    in TestCase (assertEqual expr expectedValue $ scan expr)
 
 main :: IO ()
 main = do
