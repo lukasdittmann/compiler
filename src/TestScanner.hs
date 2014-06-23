@@ -21,6 +21,7 @@ tests = TestList [ TestLabel "SimpleTests"
                     testRefLink,
                     testRefTextToken,
                     testHLinkWithRefText,
+                    testEmbeddedHLink,
                     testImage
                 ]
 
@@ -107,8 +108,8 @@ testAsterisk =
 -- Erkennen eines Unterstrichs zur Auszeichnung von kursivem Text
 testUnderscore :: Test
 testUnderscore =
-    let expr = "_text_"
-        expectedValue = Just [T_Underscore "text"]
+    let expr = "bla _text_"
+        expectedValue = Just [T_Text "bla ", T_Underscore "text"]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
 
@@ -131,7 +132,7 @@ testRefLink =
 -- Erkennen eines Tokens, dass einen Referenztext repräsentiert
 testRefTextToken :: Test
 testRefTextToken =
-    let expr = "[RefText] bla"
+    let expr = "bla [RefText] bla"
         expectedValue = Just [ T_RefText "RefText", T_Space 1, T_Text "bla" ]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
@@ -143,12 +144,18 @@ testHLinkWithRefText =
         expectedValue = Just [ T_RefText "Referenztext", T_HLink "http://www.google.de" ]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
+testEmbeddedHLink :: Test
+testEmbeddedHLink =
+    let expr = "bla [Referenztext](http://www.google.de) bla"
+        expectedValue = Just [ T_Text "bla ", T_RefText "Referenztext", T_HLink "http://www.google.de", T_Space 1, T_Text "bla" ]
+    in TestCase (assertEqual expr expectedValue $ scan expr)
 
+    
 -- Erkennen von eingebundenen Bildern
 testImage :: Test
 testImage =
-    let expr = "!(http://www.bla.de/img.png)"
-        expectedValue = Just [T_Image "http://www.bla.de/img.png"]
+    let expr = "text !(http://www.bla.de/img.png)"
+        expectedValue = Just [T_Text "text ", T_Image "http://www.bla.de/img.png"]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
 main :: IO ()
