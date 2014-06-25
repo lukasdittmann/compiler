@@ -123,8 +123,8 @@ scan string@('!':'(':xs) =
         in case rest of
             ')':rest -> maybe Nothing (\tokens -> Just (T_Image imagelink:tokens)) $ scan rest
 
-            
+
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
 scan str =
-    let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\','!','(','[','_']) str
+    let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\','!','(',']','[','_']) str
     in maybe Nothing (\tokens -> Just (T_Text restOfLine:tokens)) $ scan restOfStr

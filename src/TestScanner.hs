@@ -133,7 +133,7 @@ testRefLink =
 testRefTextToken :: Test
 testRefTextToken =
     let expr = "bla [RefText] bla"
-        expectedValue = Just [ T_RefText "RefText", T_Space 1, T_Text "bla" ]
+        expectedValue = Just [ T_Text "bla ", T_RefText "RefText", T_Space 1, T_Text "bla" ]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
 
