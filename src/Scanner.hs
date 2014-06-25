@@ -125,6 +125,7 @@ scan string@('!':'(':xs) =
 
 
 -- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
+-- !!! Funktioniert nur, wenn Ausrufezeichen in der Bedingung für span nicht mit enthalten ist, sonst AsyncException!
 scan str =
-    let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\','!','(',']','[','_']) str
+    let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\','(',']','[','_','!']) str
     in maybe Nothing (\tokens -> Just (T_Text restOfLine:tokens)) $ scan restOfStr
