@@ -17,7 +17,7 @@ data MDToken = T_Newline        -- '\n'
              | T_Space Int      -- ein Leerzeichen mit zugehoeriger Anzahl
              | T_Tab Int        -- 
              | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz
-             | T_RefLinkDefinition String -- Definition eines Referenzlinks mit Angabe des zugehörigen Hyperlinks
+             | T_RefLinkDef String -- Definition eines Referenzlinks mit Angabe des zugehörigen Hyperlinks
              | T_RefLink String -- Referenzlink
              | T_RefText String -- Referenztext für einen Hyperlink
              | T_HLink String   -- Hyperlink
@@ -94,20 +94,20 @@ scan string@('_':xs) =
             -- kommt hier irgendetwas anderes, wird das Eingescannte als bloßer Text erkannt.
 
 
--- Folgen eckige Klammern auf einen Referenztext, muss dies als Referenzlink erkannt werden.
-scan string@(']':'[':xs) =
-    let (refLink, xd) = span (/= ']') xs
-        in case xd of
-            ']':rest -> maybe Nothing (\tokens -> Just (T_RefLink refLink:tokens)) $ scan rest
-            -- wenn hier irgendetwas anderes kommt, wird es einfach als Text abgefruehstueckt.
-
-
--- Erkennen von Referenztext bei Referenzlinks und Hyperlinks
+-- Erkennen eckigen Klammern bzw. Klammerpaaren und Differenzierung in RefText, RefLink oder RefLinkDefinition
 scan ('[':xs) =
     let (refText, xd) = span (/= ']') xs
         in case xd of
+            -- wenn nach dem Referenztext ein weiteres paar eckiger Klammern folgt, muss dieses als Referenzlink erkannt werden.
+            ']':'[':rest -> let (refLink, otherStuff) = span (/= ']') rest
+                            in maybe Nothing (\tokens -> Just (T_RefText refText:T_RefLink refLink:tokens)) $ scan (tail otherStuff)
+
+            -- folgt danach ein Doppelpunkt, liegt eine Definition eines Referenzlinks vor.
+                            
+            -- ansonsten gehen wir davon aus, dass irgendetwas anderes nachfolgt - sinnvollerweise ein HLink.
             ']':rest -> maybe Nothing (\tokens -> Just (T_RefText refText:tokens)) $ scan rest
-            -- wenn hier irgendetwas anderes kommt, wird es einfach als Text abgefruehstueckt.
+            
+            -- wenn hier irgendetwas anderes kommt, wird es einfach als Text gescannt.
 
 -- Erkennen von Hyperlinks
 scan string@('(':xs) =

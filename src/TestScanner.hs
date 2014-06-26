@@ -18,8 +18,7 @@ tests = TestList [ TestLabel "SimpleTests"
                     testAsterisk,
                     testUnderscore,
                     --testRefLinkDef,
-                    testRefLink,
-                    testRefTextToken,
+                    testRefLink, --schmeißt aktuell die AsyncException!
                     testHLinkWithRefText,
                     testEmbeddedHLink,
                     testImage
@@ -117,7 +116,7 @@ testUnderscore =
 testRefLinkDef :: Test
 testRefLinkDef =
     let expr = "[Test]: http://www.test.de"
-        expectedValue = Just [ T_RefLinkDefinition "http://www.test.de"]
+        expectedValue = Just [ T_RefLinkDef "http://www.test.de"]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
     
@@ -126,14 +125,6 @@ testRefLink :: Test
 testRefLink =
     let expr = "[RefText][RefLink]"
         expectedValue = Just [ T_RefText "RefText", T_RefLink "RefLink" ]
-    in TestCase (assertEqual expr expectedValue $ scan expr)
-
-    
--- Erkennen eines Tokens, dass einen Referenztext repräsentiert
-testRefTextToken :: Test
-testRefTextToken =
-    let expr = "bla [RefText] bla"
-        expectedValue = Just [ T_Text "bla ", T_RefText "RefText", T_Space 1, T_Text "bla" ]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
 

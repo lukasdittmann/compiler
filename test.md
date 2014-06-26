@@ -1,7 +1,7 @@
 #Willkommen##Test
   
 ## in der H2
-bla [ich bin ein link](http://www.google.de) yeah!
+bla [ich bin ein link](http://www.google.de) yeah
 
 1. erstes Element
 2. zweites Element
