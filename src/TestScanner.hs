@@ -17,8 +17,8 @@ tests = TestList [ TestLabel "SimpleTests"
                     testTabWithSpaces,
                     testAsterisk,
                     testUnderscore,
-                    --testRefLinkDef,
-                    testRefLink, --schmeißt aktuell die AsyncException!
+                    testRefLinkDef,
+                    testRefLink,
                     testHLinkWithRefText,
                     testEmbeddedHLink,
                     testImage
@@ -112,10 +112,10 @@ testUnderscore =
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
 
--- Erkennung der Definition eines Referenzlinks mit [Reftext]: Link
+-- Erkennung der Definition eines Referenzlinks mit [Reftext]:URL - zwischen Doppelpunkt und URL darf kein Leerzeichen stehen.
 testRefLinkDef :: Test
 testRefLinkDef =
-    let expr = "[Test]: http://www.test.de"
+    let expr = "[Test]:http://www.test.de"
         expectedValue = Just [ T_RefLinkDef "http://www.test.de"]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 

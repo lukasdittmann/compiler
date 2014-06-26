@@ -102,11 +102,15 @@ scan ('[':xs) =
             ']':'[':rest -> let (refLink, otherStuff) = span (/= ']') rest
                             in maybe Nothing (\tokens -> Just (T_RefText refText:T_RefLink refLink:tokens)) $ scan (tail otherStuff)
 
-            -- folgt danach ein Doppelpunkt, liegt eine Definition eines Referenzlinks vor.
-                            
+            -- folgt danach ein Doppelpunkt, liegt eine Definition eines Referenzlinks vor. Alles bis zum naechsten Leerzeichen wird
+            -- dann als zugehoerige URL eingelesen.
+            ']':':':rest -> let (url, otherStuff) = span (/=' ') rest
+                            in maybe Nothing (\tokens -> Just (T_RefLinkDef url:tokens)) $ scan otherStuff
+
             -- ansonsten gehen wir davon aus, dass irgendetwas anderes nachfolgt - sinnvollerweise ein HLink.
+            -- Alles weitere ueberlassen wir der scan-Fkt.
             ']':rest -> maybe Nothing (\tokens -> Just (T_RefText refText:tokens)) $ scan rest
-            
+
             -- wenn hier irgendetwas anderes kommt, wird es einfach als Text gescannt.
 
 -- Erkennen von Hyperlinks
@@ -118,14 +122,18 @@ scan string@('(':xs) =
 
 
 --Erkennen von eingebundenen Bildern
-scan string@('!':'(':xs) =
-    let (imagelink, rest) = span (/= ')') xs
+scan string@('!':xs) =
+    let (exclamMark, rest) = span (=='!') xs
         in case rest of
-            ')':rest -> maybe Nothing (\tokens -> Just (T_Image imagelink:tokens)) $ scan rest
+            -- Erkennen der Kombination '!('... als Anfang eines Bildlinks
+            '(':possImgLink -> let (imgLink, rest) = span(/= ')') possImgLink
+                               in maybe Nothing (\tokens -> Just (T_Image imgLink:tokens)) $ scan (tail rest)
+            -- dient das Ausrufezeichen nicht zum Markieren eines Bildlinks, weil irgendetwas anderes folgt,
+            --wird es explizit in ein simples Texttoken umgewandelt.
+            _ -> maybe Nothing (\tokens -> Just (T_Text "!":tokens)) $ scan (tail string)
 
 
--- sonst lesen wir einfach den Rest bis zum Zeilenende in ein Text-Token ein
--- !!! Funktioniert nur, wenn Ausrufezeichen in der Bedingung für span nicht mit enthalten ist, sonst AsyncException!
+-- alles, was kein Steuersymbol ist, lesen wir einfach bis zum Zeilenende in ein Text-Token ein
 scan str =
     let (restOfLine, restOfStr) = span (`notElem` ['\n','*','\\','(',']','[','_','!']) str
     in maybe Nothing (\tokens -> Just (T_Text restOfLine:tokens)) $ scan restOfStr
