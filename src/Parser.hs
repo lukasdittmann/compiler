@@ -3,14 +3,15 @@ module Parser ( parse {- nur parse exportieren -} )
 
 import           IR
 import           Scanner
+import Data.Map as M
 
 -- Definiton der verfügbaren Funktione
-parse :: [MDToken] -> [LINK] -> Maybe AST
-parseInAbs :: [MDToken] -> [LINK] -> String
+parse :: [MDToken] -> References -> Maybe AST
+parseInAbs :: [MDToken] -> References -> String
 parseToText :: [MDToken] -> String
 streamParseInAbs :: [MDToken] -> [AST]
-parsePara :: [MDToken] -> [LINK] -> Maybe AST
-parseInList :: [MDToken] -> [LINK] -> Maybe AST
+parsePara :: [MDToken] -> References -> Maybe AST
+parseInList :: [MDToken] -> References -> Maybe AST
 findContents :: [MDToken] -> ([MDToken],[MDToken])
 parseCodeblock :: [MDToken] -> Maybe AST
 
@@ -97,6 +98,15 @@ parsePara (T_Newline:xs) linkList= maybe Nothing (\(Sequence ast) -> Just $ Sequ
 -- [Root] [Absatz] :: Bild erkennen
 parsePara (T_Image str:xs) linkList= maybe Nothing (\(Sequence ast) -> Just $ Sequence (Image str:ast)) $ parsePara xs linkList
 
+-- [Root] [Absatz] :: Link erkennen
+parsePara (T_RefText str:T_RefLink ref:xs) linkList= maybe Nothing (\(Sequence ast) -> Just $ Sequence (Link ref str:ast)) $ parsePara xs linkList
+parsePara (T_RefText str:T_HLink url:xs) linkList= maybe Nothing (\(Sequence ast) -> Just $ Sequence (DLink url str:ast)) $ parsePara xs linkList
+
+-- [Root] [Absatz] :: Definition eines Links erkennen erkennen
+parsePara (T_RefLinkDef def url:xs) linkList=
+    let linkList = M.insert def url linkList
+    in maybe Nothing (\(Sequence ast) -> Just $ Sequence (ast)) $ parsePara xs linkList
+
 -- [Root] [Absatz] :: Header erkennen
 parsePara (T_H i : T_Space 1:T_Text str: xs) linkList= maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parsePara xs linkList
 parsePara (T_H i : T_Text str: xs) linkList= maybe Nothing (\(Sequence ast) -> Just $ Sequence (H i str:ast)) $ parsePara xs linkList
@@ -139,4 +149,3 @@ addP :: AST -> AST -> AST
 addP (Text str1) (Sequence (Text str2 : ast)) = Sequence (Text (str1 ++ str2) : ast)
 -- Andernfalls bleibt der Absatz alleine
 addP p (Sequence ast) = Sequence (p : ast)
-
