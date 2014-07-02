@@ -8,23 +8,33 @@ import           Scanner
 main :: IO ()
 main = do
     -- lese den Inhalt der Datei "test.md" als einen kompletten String ein
-    input <- readFile "test.md"
-   
-    -- versuche den String zu scannen
+    input <- readFile "newMDFile.md"
+    -- Liste erstellen (Leere Listen führen zu Fehlern in Haskell)
+    let linkList = [Link "" ""]
+
+    -- Scaner-Tokens lesen
     let maybeTokens = scan input
+   
     putStrLn "Scanner output\n=============="
-    print maybeTokens
-    -- the parse
+    --print maybeTokens
+    
+    -- Verarbeitung der Scanner-Tokens (Maybe Nothing)
     case maybeTokens of
         Nothing -> putStrLn "scanner failed"
         Just tokens -> do -- der Scanner war erfolgreich
             -- versuche die Tokens zu parsen
-            let maybeAst = parse tokens
+            let maybeAst = parse tokens linkList
+                
             putStrLn "\nParser output\n============="
             print maybeAst
+            
+            putStrLn "Scanner output\n=============="
+            print linkList
+
+            -- Verarbeitung der Parse-Tokens (Maybe Nothing) 
             case maybeAst of
                 Nothing -> putStrLn "parser failed"
                 Just ast -> do -- der Parser war erfolgreich
+                               
                     putStrLn "\nGenerated HTML\n=============="
-                    -- generiere HTML und gebe es aus
                     putStrLn $ generateHTML ast
