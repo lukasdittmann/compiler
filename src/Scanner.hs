@@ -17,7 +17,7 @@ data MDToken = T_Newline        -- '\n'
              | T_Space Int      -- ein Leerzeichen mit zugehoeriger Anzahl
              | T_Tab Int        -- 
              | T_EmptyLine      -- eine leere Zeile, nach der ein neuer P-Absatz
-             | T_RefLinkDef String -- Definition eines Referenzlinks mit Angabe des zugehörigen Hyperlinks
+             | T_RefLinkDef String String -- Definition eines Referenzlinks mit Angabe des zugehörigen Hyperlinks
              | T_RefLink String -- Referenzlink
              | T_RefText String -- Referenztext für einen Hyperlink
              | T_HLink String   -- Hyperlink
@@ -105,7 +105,7 @@ scan ('[':xs) =
             -- folgt danach ein Doppelpunkt, liegt eine Definition eines Referenzlinks vor. Alles bis zum naechsten Leerzeichen wird
             -- dann als zugehoerige URL eingelesen.
             ']':':':rest -> let (url, otherStuff) = span (/=' ') rest
-                            in maybe Nothing (\tokens -> Just (T_RefLinkDef url:tokens)) $ scan otherStuff
+                            in maybe Nothing (\tokens -> Just (T_RefLinkDef refText url:tokens)) $ scan otherStuff
 
             -- ansonsten gehen wir davon aus, dass irgendetwas anderes nachfolgt - sinnvollerweise ein HLink.
             -- Alles weitere ueberlassen wir der scan-Fkt.
