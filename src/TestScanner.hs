@@ -116,7 +116,7 @@ testUnderscore =
 testRefLinkDef :: Test
 testRefLinkDef =
     let expr = "[Test]:http://www.test.de"
-        expectedValue = Just [ T_RefLinkDef "http://www.test.de"]
+        expectedValue = Just [ T_RefLinkDef "Test" "http://www.test.de"]
     in TestCase (assertEqual expr expectedValue $ scan expr)
 
     
